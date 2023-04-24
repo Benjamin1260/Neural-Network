@@ -4,7 +4,7 @@
 #include <chrono>
 #include <cmath>
 #include <type_traits>
-//#include "MNIST_Read.h"
+#include "MNIST_Read.h"
 
 /*create a bundle which basically acts like an array but with a size attached,
 idk abt performance though, might aswel use a vector at this point*/

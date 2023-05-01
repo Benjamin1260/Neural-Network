@@ -166,16 +166,18 @@ int binaryToInt(custArr<std::byte> inBinary) {
     return sum;
 }
 
-void dimensionInit(std::ifstream *iFile, custArr<int> *dimensions) {
-    iFile->ignore(4); //skip magic number
-    for (int i = 0; i < dimensions->size; i++) {
+custArr<int> findSize(std::ifstream *iFile, int dim) {
+    iFile->seekg(4); //go to beginning past magic number
+    custArr<int> sizeArr(dim);
+    for (int i = 0; i < dim; i++) {
         custArr<std::byte> byteCache(4);
         for (int j = 0; j < 4; j++) {
             byteCache[j] = std::byte(iFile->get());
         }
-        (*dimensions)[i] = binaryToInt(byteCache);
+        sizeArr[i] = binaryToInt(byteCache);
     }
-}
+    return sizeArr;
+};
 
 struct inputFilesStruct {
     std::ifstream *inputImages;
@@ -184,25 +186,46 @@ struct inputFilesStruct {
     custArr<int> ivSize;
 
     inputFilesStruct(std::ifstream *iiiFile, std::ifstream *iivFile) : inputImages(iiiFile), inputValues(iivFile) {
-        //assuming dimensions are 3 and 1
-        iiSize = custArr<int>(3);
+        //initializing sizes
+        iiSize = custArr<int>(2);
+        custArr<int> sizeArr = findSize(inputImages, 3);
+        iiSize[0] = sizeArr[0];
+        iiSize[1] = sizeArr[1] * sizeArr[2];
+
         ivSize = custArr<int>(1);
-        dimensionInit(inputImages, &iiSize);
-        dimensionInit(inputValues, &ivSize);
+        ivSize[0] = findSize(inputValues, 1)[0];
     };
 };
 
+using pairArrArr = std::pair <custArr<int>, custArr<int>>;
+pairArrArr nextImageLabelPair(inputFilesStruct inputFiles, int pos) {
+    custArr<int> outImArr(inputFiles.iiSize[1]);
+    custArr<int> outValArr(10);
+
+    //get image, c-string, assign each as int to outImArr
+    char *fileLineOut = new char[inputFiles.iiSize[1] + 1]; //+1 because null char (\0) is auto added
+    inputFiles.inputImages->getline(fileLineOut, sizeof(*fileLineOut));
+    for (int i = 0; i < inputFiles.iiSize[1]; i++) { //skip final null char
+        outImArr[i] = fileLineOut[i];
+        std::cout << outImArr[i] << std::endl; //PROBLEM: there is something wrong while reading the file, expected out: 000, received (giberish)
+    }
+    //get value, get arr with size 10 (outputsize) and make outputsize[val] = 1
+
+
+    pairArrArr outPair(outImArr, outValArr);
+    return outPair;
+}
+
 //assumes magic number: (inputImages == 0083 && inputValues == 0081)
-using ArrPairArrInt = custArr<std::pair <custArr<int>, int>>;
-ArrPairArrInt *MNIST_init(std::ifstream *inputImagesFile, std::ifstream *inputValuesFile) {
+custArr<pairArrArr> *MNIST_init(std::ifstream *inputImagesFile, std::ifstream *inputValuesFile) {
     if (sizeof(char) != 1) {std::cout << "charSize != 1"; exit;} //fstream outputs char, gets used as if 1 byte, if char extrected != 1 byte, code will be off
 
     inputFilesStruct inputFiles(inputImagesFile, inputValuesFile);
 
     //create output array and assign value to every image
-    ArrPairArrInt *outArrPair = new custArr<std::pair <custArr<int>, int>>(inputFiles.iiSize[0]);
+    custArr<pairArrArr> *outArrPair = new custArr<pairArrArr>(inputFiles.iiSize[0]);
     for (int i = 0; i < outArrPair->size; i++) {
-        //(*outArrPair)[i] = nextImageLabelPair();
+        (*outArrPair)[i] = nextImageLabelPair(inputFiles, i);
     }
 
     return outArrPair; //final out

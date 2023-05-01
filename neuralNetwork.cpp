@@ -19,8 +19,11 @@ int main() {
         //std::cout << "input " << i << " = " << inData[i] << std::endl;
     }
 
+
     neuralNetwork myNetwork(inSize, midSize, layer, outSize);
     custArr<float> output = myNetwork.run(inData);
+
+    std::cout << "GIT TEST\n";
 
     std::cout << "OUTPUT ";
     for (int i = 0; i < output.size; i++) {

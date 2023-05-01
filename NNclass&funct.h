@@ -42,7 +42,7 @@ struct custArr {
                 std::cout << "ERROR: " << e.what() << std::endl;
             }
         }
-    } 
+    };
 
     T& operator[](int i) {
         try {
@@ -65,7 +65,7 @@ struct custArr {
         this->ptr = memAlocated? other.ptr : NULL;
         //std::cout << "custArr coppied\n";
         return *this;
-    }
+    };
 };
 
 struct neuron {
@@ -177,19 +177,33 @@ void dimensionInit(std::ifstream *iFile, custArr<int> *dimensions) {
     }
 }
 
+struct inputFilesStruct {
+    std::ifstream *inputImages;
+    std::ifstream *inputValues;
+    custArr<int> iiSize;
+    custArr<int> ivSize;
+
+    inputFilesStruct(std::ifstream *iiiFile, std::ifstream *iivFile) : inputImages(iiiFile), inputValues(iivFile) {
+        //assuming dimensions are 3 and 1
+        iiSize = custArr<int>(3);
+        ivSize = custArr<int>(1);
+        dimensionInit(inputImages, &iiSize);
+        dimensionInit(inputValues, &ivSize);
+    };
+};
+
 //assumes magic number: (inputImages == 0083 && inputValues == 0081)
 using ArrPairArrInt = custArr<std::pair <custArr<int>, int>>;
-ArrPairArrInt *MNIST_init(std::ifstream *inputImages, std::ifstream *inputValues) {
+ArrPairArrInt *MNIST_init(std::ifstream *inputImagesFile, std::ifstream *inputValuesFile) {
     if (sizeof(char) != 1) {std::cout << "charSize != 1"; exit;} //fstream outputs char, gets used as if 1 byte, if char extrected != 1 byte, code will be off
 
-    custArr<int> iiDimension(3);
-    dimensionInit(inputImages, &iiDimension);
-    custArr<int> ivDimension(1);
-    dimensionInit(inputValues, &ivDimension);
+    inputFilesStruct inputFiles(inputImagesFile, inputValuesFile);
 
-    //ready for loop with these sizes
-    ArrPairArrInt *outArrPair = new custArr<std::pair <custArr<int>, int>>(0);
-
+    //create output array and assign value to every image
+    ArrPairArrInt *outArrPair = new custArr<std::pair <custArr<int>, int>>(inputFiles.iiSize[0]);
+    for (int i = 0; i < outArrPair->size; i++) {
+        //(*outArrPair)[i] = nextImageLabelPair();
+    }
 
     return outArrPair; //final out
 }

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <chrono>
+#include <fstream>
+#include <string>
 #include "NNclass&funct.h"
 
 int main() {
@@ -16,14 +18,16 @@ int main() {
     custArr<float> inData(inSize);
     for (int i = 0; i < inSize; i++) {
         inData[i] = rand() % 2;
-        //std::cout << "input " << i << " = " << inData[i] << std::endl;
     }
-
+    
+    std::ifstream inputImages("train-images.idx3-ubyte");
+    std::ifstream inputLabels("train-labels.idx1-ubyte");
+    MNIST_init(&inputImages, &inputLabels);
+    inputImages.close();
+    inputLabels.close();
 
     neuralNetwork myNetwork(inSize, midSize, layer, outSize);
     custArr<float> output = myNetwork.run(inData);
-
-    std::cout << "GIT TEST\n";
 
     std::cout << "OUTPUT ";
     for (int i = 0; i < output.size; i++) {

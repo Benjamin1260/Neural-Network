@@ -20,8 +20,8 @@ int main() {
         inData[i] = rand() % 2;
     }
     
-    std::ifstream inputImages("train-images.idx3-ubyte");
-    std::ifstream inputLabels("train-labels.idx1-ubyte");
+    std::ifstream inputImages("train-images.idx3-ubyte", std::ios::binary);
+    std::ifstream inputLabels("train-labels.idx1-ubyte", std::ios::binary);
     MNIST_init(&inputImages, &inputLabels);
     inputImages.close();
     inputLabels.close();

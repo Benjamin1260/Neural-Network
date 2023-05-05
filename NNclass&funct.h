@@ -8,6 +8,7 @@
 #include <utility>
 #include <cstddef>
 #include <type_traits>
+#include <cstdint>
 
 /*create a bundle which basically acts like an array but with a size attached,
 idk abt performance though, might aswel use a vector at this point*/
@@ -28,6 +29,11 @@ struct custArr {
         } else {
             std::cout << "UNDEFINED BEHAVIOUR: SIZE = " << size << std::endl;
             ptr = NULL;
+        }
+    };
+    custArr(int iSize, T val) : custArr(iSize) {
+        for (int i = 0; i < iSize; i++) {
+            this->ptr[i] = val;
         }
     };
 
@@ -161,7 +167,7 @@ int binaryToInt(custArr<std::byte> inBinary) {
     int sum = 0;
     for (int i = 0; i < inBinary.size; i++) {
         std::byte currentByte = inBinary[i];
-        sum += std::pow(16, (inBinary.size-i-1)) * std::to_integer<int>(currentByte);
+        sum += std::pow(256, (inBinary.size-i-1)) * std::to_integer<int>(currentByte);
     }
     return sum;
 }
@@ -175,6 +181,7 @@ custArr<int> findSize(std::ifstream *iFile, int dim) {
             byteCache[j] = std::byte(iFile->get());
         }
         sizeArr[i] = binaryToInt(byteCache);
+        std::cout << "Size: " << sizeArr[i] << std::endl;
     }
     return sizeArr;
 };
@@ -197,20 +204,17 @@ struct inputFilesStruct {
     };
 };
 
-using pairArrArr = std::pair <custArr<int>, custArr<int>>;
+using pairArrArr = std::pair <custArr<uint8_t>, custArr<uint8_t>>;
 pairArrArr nextImageLabelPair(inputFilesStruct inputFiles, int pos) {
-    custArr<int> outImArr(inputFiles.iiSize[1]);
-    custArr<int> outValArr(10);
-
-    //get image, c-string, assign each as int to outImArr
-    char *fileLineOut = new char[inputFiles.iiSize[1] + 1]; //+1 because null char (\0) is auto added
-    inputFiles.inputImages->getline(fileLineOut, sizeof(*fileLineOut));
-    for (int i = 0; i < inputFiles.iiSize[1]; i++) { //skip final null char
-        outImArr[i] = fileLineOut[i];
-        std::cout << outImArr[i] << std::endl; //PROBLEM: there is something wrong while reading the file, expected out: 000, received (giberish)
+    custArr<uint8_t> outImArr(inputFiles.iiSize[1]);
+    for (int i = 0; i < inputFiles.iiSize[1]; i++) {
+        (*inputFiles.inputImages) >> outImArr[i];
     }
-    //get value, get arr with size 10 (outputsize) and make outputsize[val] = 1
-
+    
+    custArr<uint8_t> outValArr(10, 0);
+    uint8_t value;
+    (*inputFiles.inputValues) >> value;
+    outValArr[value] = 1;
 
     pairArrArr outPair(outImArr, outValArr);
     return outPair;
@@ -230,8 +234,3 @@ custArr<pairArrArr> *MNIST_init(std::ifstream *inputImagesFile, std::ifstream *i
 
     return outArrPair; //final out
 }
-
-//initialize config by using first 4 bytes (magic number) ==> fuck this imma just assume
-//each line = 28x28 (=784) unsigned ints
-//custArr<<custArr<int>> ==> link correct value to image: pair? ==> yes
-//return

@@ -181,7 +181,7 @@ custArr<int> findSize(std::ifstream *iFile, int dim) {
             byteCache[j] = std::byte(iFile->get());
         }
         sizeArr[i] = binaryToInt(byteCache);
-        std::cout << "Size: " << sizeArr[i] << std::endl;
+        //std::cout << "Size: " << sizeArr[i] << std::endl;
     }
     return sizeArr;
 };

@@ -22,14 +22,12 @@ int main() {
         inData[i] = rand() % 2;
     }
     
-    /*
     std::ifstream inputImages("train-images.idx3-ubyte", std::ios::binary);
     std::ifstream inputLabels("train-labels.idx1-ubyte", std::ios::binary);
     MNIST_init(&inputImages, &inputLabels);
     inputImages.close();
     inputLabels.close();
-    */
-   
+
     neuralNetwork myNetwork(inSize, midSize, layer, outSize);
     std::vector<float> output = myNetwork.run(inData);
 

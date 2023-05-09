@@ -8,8 +8,9 @@
 #include "IDX_Interface.h"
 
 int main() {
+    auto startTime = std::chrono::high_resolution_clock::now(); //for measuring performance
     //initializing seed for random number generation
-    auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    auto seed = startTime.time_since_epoch().count();
     std::srand(seed);
 
     //initializing the neural network
@@ -36,5 +37,9 @@ int main() {
         std::cout << output[i] << " ";
     }
     std::cout << std::endl;
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    std::cout << "RUNTIME(ms): " << duration.count() << std::endl;
     return 0;
 }
